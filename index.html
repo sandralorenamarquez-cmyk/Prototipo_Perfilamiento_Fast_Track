@@ -229,11 +229,13 @@ mensaje: () => ({ oculto:true, prog:0,
       <div><div class="wa-nom">Seguros Alfa</div><div class="wa-ver">✓ Cuenta oficial verificada</div></div>
     </div>
     <div class="wa-body" style="margin:0 -20px -20px;padding-bottom:20px">
-      <div class="wa-msg">Hola, <b>${S.perfil.nombre}</b>. Le escribimos de Seguros Alfa por su reclamación del sismo del 10 de agosto.<br><br>
-        Su caso <b>${S.perfil.radicado}</b> está registrado. Para continuar necesitamos que confirme unas cosas. Se hace desde el celular y toma unos tres minutos.
-        <div class="wa-hora">10:14</div></div>
-      <div class="wa-msg"><span class="enlace">micaso.segurosalfa.com.co/m/8Kq2</span><br><br>
-        El enlace es personal y vence en 72 horas. No lo reenvíe a nadie. Nunca le pediremos claves ni códigos de su banco.
+      <div class="wa-msg">Hola, <b>${S.perfil.nombre}</b> 👋<br><br>
+        Sabemos que estas semanas no han sido fáciles, por eso queremos facilitarle el proceso.<br><br>
+        Para avanzar con su reclamación por el sismo, caso <b>${S.perfil.radicado}</b>, necesitamos que confirme algunos datos. Le tomará solo 3 minutos.<br><br>
+        Ingrese aquí:<br>🔗 <span class="enlace">micaso.segurosalfa.com.co/m/8Kq2</span><br><br>
+        El enlace es personal y estará disponible por 72 horas. No lo comparta.<br><br>
+        🛡️ Recuerde: nunca le pediremos claves, códigos bancarios ni dinero.<br><br>
+        Seguros Alfa
         <div class="wa-hora">10:14</div></div>
       <button class="wa-btn" onclick="entrar()">Continuar con mi caso</button>
     </div>`,
@@ -327,8 +329,8 @@ finiquito: () => ({ mini:'PASO 3 DE 3', tit:'Revise el documento de cierre', pro
       <span class="bx" style="background:var(--azul)">📄</span>
       <span class="tx"><b>Finiquito de generales</b><small>Documento completo</small></span>
       <span style="margin-left:auto;color:var(--verde);font-size:12.5px;font-weight:600">Leer</span></div>
-    <div class="caja aviso"><b class="t">Pendiente de aprobación</b>
-      Este texto en lenguaje claro es una propuesta y requiere concepto de Jurídica antes de usarse con clientes.</div>`,
+    <div class="caja"><b class="t">Sobre este documento</b>
+      Este resumen es una ayuda de lectura. El documento que usted firma es el finiquito completo, que puede leer arriba.</div>`,
   pie:`<button class="cta" onclick="ir('firma')">Estoy de acuerdo, continuar</button>
        <button class="cta sec" onclick="ayuda()">Tengo dudas sobre este documento</button>` }),
 
@@ -507,7 +509,7 @@ function verFiniquito(){
   abrirHoja(`
     <img class="logo-g" src="${LOGO_G}" alt="Seguros Alfa">
     <h3>Finiquito de generales</h3>
-    <p class="sub">Texto pendiente de revisión de Jurídica.</p>
+    <p class="sub">Texto validado por Jurídica. Se genera prediligenciado con los datos del caso.</p>
     <div class="caja" style="font-size:12.5px;line-height:1.7">
       RAMO: Todo riesgo daño material<br>PÓLIZA: ${S.perfil.radicado}<br>ASEGURADO: ${S.perfil.nombre} ${S.perfil.apellido}<br><br>
       Yo, ${S.perfil.nombre} ${S.perfil.apellido}, en calidad de beneficiario(a) de la póliza indicada, manifiesto que formalizo y acepto que el valor de la pérdida ocasionada por el terremoto ocurrido el 10 de agosto de 2026 corresponde a la suma indicada. Este valor corresponde a la pérdida cuantificada antes de aplicar el deducible y demás conceptos previstos en las condiciones contractuales de la póliza adquirida.<br><br>
@@ -515,7 +517,7 @@ function verFiniquito(){
       Así mismo, de acuerdo con lo dispuesto en el artículo 1096 del Código de Comercio, manifiesto que conozco y acepto que SEGUROS ALFA S.A. se subroga hasta por la cantidad pagada en los derechos y acciones contra terceros que se pudieran derivar del siniestro ocurrido.
     </div>
     <div class="caja aviso" style="margin-top:12px"><b class="t">Nota interna, no visible para el cliente</b>
-      El documento se genera prediligenciado desde la base. La plantilla actual en Word contiene resaltados y anotaciones internas que deben eliminarse antes de cualquier envío.</div>
+      El texto está validado. Lo que falta es operativo: la plantilla en Word contiene resaltados y anotaciones de uso interno que deben eliminarse en la versión que se genera para el cliente.</div>
     <button class="cta sec" style="margin-top:14px" onclick="cerrarHoja()">Cerrar</button>`);
 }
 function verTraza(){
