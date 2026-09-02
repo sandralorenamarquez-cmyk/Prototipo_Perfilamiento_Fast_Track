@@ -158,10 +158,10 @@ footer.app{padding:14px 20px 18px;border-top:1px solid var(--linea);background:#
 <body>
 
 <div id="demo">
-  <b>Prototipo para revisión.</b> El cliente entra directo desde el enlace que recibe, sin códigos ni contraseñas. La cámara, la firma y el registro de trazabilidad funcionan de verdad. Datos ficticios; nada se envía a ningún servidor.
+  <b>Prototipo para revisión.</b> El cliente entra directo desde el enlace, sin códigos ni contraseñas, y envía toda su documentación por aquí. La cámara, la firma y el registro de trazabilidad funcionan de verdad. Datos ficticios; nada se envía a ningún servidor.
   <div class="perfiles">
     <button data-p="0" class="on">Documentos completos</button>
-    <button data-p="1">Con pendientes</button>
+    <button data-p="1">Sin cotización aún</button>
     <button data-p="2">Daño mayor</button>
   </div>
 </div>
@@ -192,26 +192,27 @@ document.getElementById('logo-header').src = LOGO_W;
 /* ===== Datos de demostración ===== */
 const PERFILES = [
   { nombre:'Marta Elena', apellido:'Rondón Pérez', radicado:'INC-25334', aviso:'12 de agosto de 2026',
-    direccion:'Cra 45 #12-30, Cali', banco:'Banco de Occidente',
-    docs:{fotos:true, cedula:true, conocimiento:true, cotizacion:true} },
+    direccion:'Cra 45 #12-30, Cali', banco:'Banco de Occidente', tiene:'todo' },
   { nombre:'Jorge Iván', apellido:'Restrepo Gómez', radicado:'INC-25871', aviso:'13 de agosto de 2026',
-    direccion:'Calle 8 Sur #22-14, Bogotá', banco:'Banco de Bogotá',
-    docs:{fotos:true, cedula:true, conocimiento:false, cotizacion:false} },
+    direccion:'Calle 8 Sur #22-14, Bogotá', banco:'Banco de Bogotá', tiene:'parcial' },
   { nombre:'Luz Dary', apellido:'Ospina Bedoya', radicado:'INC-26102', aviso:'11 de agosto de 2026',
-    direccion:'Av. 3N #48-22, Manizales', banco:'Banco Popular',
-    docs:{fotos:true, cedula:true, conocimiento:true, cotizacion:false} }
+    direccion:'Av. 3N #48-22, Manizales', banco:'Banco Popular', tiene:'todo' }
 ];
-const NOMBRE_DOC = { fotos:'Fotografías de los daños', cedula:'Cédula del titular',
-  conocimiento:'Formato de conocimiento del cliente', cotizacion:'Cotización de los daños' };
+const NOMBRE_DOC = { cedula:'Cédula del titular', cotizacion:'Cotización de los daños',
+  fotos:'Fotografías de los daños' };
+const PISTA_DOC = {
+  cedula:'Una foto de la cédula por ambos lados. También sirve el documento digital.',
+  cotizacion:'Tome una foto del presupuesto del maestro o de la empresa que le cotizó. También sirve un PDF.',
+  fotos:'Puede subir varias. Que se vea el daño completo y de cerca.' };
 
 let P = 0, S = {}, traza = [];
 const h = id => document.getElementById(id);
 const reg = (evento, datos = {}) => traza.push({ t:new Date().toTimeString().slice(0,8), evento, ...datos });
-const faltantes = () => Object.keys(NOMBRE_DOC).filter(k => !S.perfil.docs[k] && !S.cargados[k]);
+const faltantes = () => Object.keys(NOMBRE_DOC).filter(k => !S.cargados[k]);
 
 function reiniciar(p){
   P = p;
-  S = { perfil:PERFILES[p], pantalla:'mensaje', valor:null, cargados:{},
+  S = { perfil:PERFILES[p], pantalla:'mensaje', valor:null, cargados:{}, conocimiento:false,
         casillas:[false,false,false], firmado:false, banco:'', tipo:'', cuenta:'', constancia:null };
   traza = [];
   reg('mensaje_enviado', { canal:'whatsapp', plantilla:'contacto_sismo_v1', radicado:S.perfil.radicado });
@@ -243,17 +244,18 @@ mensaje: () => ({ oculto:true, prog:0,
 
 /* 2 · entra directo, sin código */
 resumen: () => ({ mini:'CASO ' + S.perfil.radicado,
-  tit:`Hola, ${S.perfil.nombre}.<br>Esto es lo que ya tenemos.`, prog:20,
+  tit:`Hola, ${S.perfil.nombre}.<br>Avancemos con su caso.`, prog:20,
   cuerpo:`
     <div class="caja"><b class="t">Su reclamación</b>
       Aviso recibido el ${S.perfil.aviso}<br>Inmueble: ${S.perfil.direccion}<br>Póliza asociada a su crédito con ${S.perfil.banco}</div>
-    <h2 class="sec">Documentos que ya recibimos</h2>
-    ${Object.keys(NOMBRE_DOC).map(k => `
-      <div class="item"><span class="bx ${S.perfil.docs[k] ? '' : 'pend'}">${S.perfil.docs[k] ? '✓' : '!'}</span>
-      <span class="tx"><b>${NOMBRE_DOC[k]}</b><small>${S.perfil.docs[k] ? 'recibido' : 'pendiente'}</small></span></div>`).join('')}
-    <p class="tx small">Le haremos una pregunta y le pediremos solo lo que falta. Unos tres minutos.</p>
+    <h2 class="sec">Lo que vamos a hacer en tres minutos</h2>
+    <div class="item"><span class="bx">1</span><span class="tx"><b>Una pregunta sobre los daños</b><small>Define por dónde continúa su caso</small></span></div>
+    <div class="item"><span class="bx">2</span><span class="tx"><b>Tres documentos desde la cámara</b><small>Cédula, cotización y fotos del daño</small></span></div>
+    <div class="item"><span class="bx">3</span><span class="tx"><b>Revisar y firmar</b><small>El documento de cierre, con su firma desde el celular</small></span></div>
+    <div class="caja aviso"><b class="t">Si ya envió documentos por correo</b>
+      Cárguelos aquí de nuevo. Así quedan asociados a su caso, usted recibe una constancia inmediata y no dependemos de buscarlos entre los correos.</div>
     <div class="seg"><span>🔒</span><span>Este enlace es suyo y no debe compartirlo. Si no es ${S.perfil.nombre}, ciérrelo y avísenos.</span></div>`,
-  pie:`<button class="cta" onclick="ir('valor')">Está correcto, continuar</button>
+  pie:`<button class="cta" onclick="ir('valor')">Empecemos</button>
        <button class="cta sec" onclick="ayuda()">Hay algo que corregir</button>` }),
 
 valor: () => ({ mini:'PASO 1 DE 3', tit:'¿Cuánto cree que cuesta reparar los daños?', prog:38,
@@ -273,10 +275,10 @@ agil: () => ({ mini:'SU CASO', tit:'Puede seguir por una ruta más corta', prog:
     <p class="tx">Por el valor que nos indicó, su caso puede continuar <b>sin esperar la visita de un perito</b>.</p>
     <div class="item"><span class="bx">✓</span><span class="tx"><b>No necesita agendar visita técnica</b></span></div>
     <div class="item"><span class="bx">✓</span><span class="tx"><b>Todo se completa desde aquí, hoy mismo</b></span></div>
-    <div class="item"><span class="bx">✓</span><span class="tx"><b>Le confirmamos la radicación al terminar</b></span></div>
+    <div class="item"><span class="bx">✓</span><span class="tx"><b>Le confirmamos la radicación al terminar</b><small>Con número, fecha y hora</small></span></div>
     <div class="caja aviso"><b class="t">Lo que queremos dejar claro</b>
       La revisión de su póliza, el deducible y las condiciones del contrato se mantienen igual. Esta ruta acelera el trámite; no define el resultado.</div>`,
-  pie:`<button class="cta" onclick="ir('docs')">Ver lo que falta</button>
+  pie:`<button class="cta" onclick="ir('docs')">Enviar mis documentos</button>
        <button class="cta link" onclick="ayuda()">Tengo una duda antes de continuar</button>` }),
 
 especializada: () => ({ mini:'SU CASO', tit:'Su caso continúa con revisión especializada', prog:100,
@@ -298,23 +300,25 @@ estimar: () => ({ mini:'SU CASO', tit:'Le ayudamos a estimarlo', prog:50,
   pie:`<button class="cta" onclick="ir('docs')">Enviar lo que tengo</button>
        <button class="cta sec" onclick="ayuda()">Que me acompañe un asesor</button>` }),
 
-docs: () => { const f = faltantes(); return {
+docs: () => { const f = faltantes(); const listos = 3 - f.length; return {
   mini:'PASO 2 DE 3',
-  tit: f.length===0 ? 'No le falta ningún documento' : (f.length===1 ? 'Solo falta un documento' : `Faltan ${f.length} documentos`),
+  tit: f.length===0 ? 'Recibimos los tres documentos' : (f.length===3 ? 'Envíenos tres documentos' : (f.length===2 ? 'Faltan dos documentos' : 'Falta el último documento')),
   prog:64,
   cuerpo:`
-    ${Object.keys(NOMBRE_DOC).filter(k => S.perfil.docs[k]).map(k => `
-      <div class="item"><span class="bx">✓</span><span class="tx"><b>${NOMBRE_DOC[k]}</b><small>recibido antes</small></span></div>`).join('')}
+    <p class="tx">${f.length===3 ? 'Tómeles una foto desde aquí. Le decimos al instante si quedaron legibles.' : `Van ${listos} de 3.`}</p>
     ${Object.keys(S.cargados).map(k => `
       <div class="prev"><img src="${S.cargados[k].url}" alt=""><span><b>${NOMBRE_DOC[k]}</b><br>${S.cargados[k].nombre}</span>
       <button class="quitar" onclick="quitar('${k}')">Quitar</button></div>`).join('')}
-    ${f.length===0 && !Object.keys(S.cargados).length ? '<p class="tx">Tenemos todo lo que necesitábamos de usted.</p>' : ''}
     ${f.map(k => `
       <label class="subir" for="in-${k}"><b>📷 ${NOMBRE_DOC[k]}</b>
-        <small>${k==='cotizacion' ? 'Tome una foto del presupuesto del maestro o de la empresa. También sirve un PDF.' : 'Tóquelo para tomar la foto o elegir el archivo.'}</small>
+        <small>${PISTA_DOC[k]}</small>
         <input type="file" id="in-${k}" accept="image/*,application/pdf" capture="environment" onchange="cargar('${k}',this)"></label>`).join('')}
-    ${f.length ? '<p class="tx small">Si la foto sale movida se lo decimos al instante para que la repita.</p>' : ''}`,
-  pie:`<button class="cta" ${f.length?'disabled':''} onclick="ir('finiquito')">${f.length?'Falta algún documento':'Continuar'}</button>
+    <div class="chk ${S.conocimiento?'on':''}" onclick="S.conocimiento=!S.conocimiento;pintar()">
+      <span class="bx2">${S.conocimiento?'✓':''}</span>
+      <span><b style="color:var(--azul)">Formato de conocimiento del cliente</b><br>
+      Lo llenamos con los datos de su póliza. Confirmo que están correctos.</span></div>
+    ${f.length ? '<p class="tx small">Si ya los envió por correo, cárguelos aquí igual: es la única forma de que queden asociados a su caso hoy mismo.</p>' : ''}`,
+  pie:`<button class="cta" ${(f.length||!S.conocimiento)?'disabled':''} onclick="ir('finiquito')">${f.length?'Faltan documentos':(S.conocimiento?'Continuar':'Confirme el formato')}</button>
        ${f.length ? '<button class="cta sec" onclick="ir(\'salir\')">Los envío después</button>' : ''}` }},
 
 finiquito: () => ({ mini:'PASO 3 DE 3', tit:'Revise el documento de cierre', prog:78,
@@ -363,7 +367,7 @@ listo: () => ({ mini:'LISTO', tit:'Recibimos todo', prog:100,
     <div class="exito">✓</div>
     <p class="tx" style="text-align:center">Su documentación quedó radicada el <b>${new Date().toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'})}</b> a las <b>${new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}</b>.</p>
     <div class="caja"><b class="t">Constancia ${S.constancia||''}</b>
-      Finiquito firmado · ${Object.values(NOMBRE_DOC).join(' · ')} · Datos para el pago</div>
+      Finiquito firmado · Cédula · Cotización · Fotografías · Conocimiento del cliente · Datos para el pago</div>
     <h2 class="sec">Qué sigue</h2>
     <p class="tx">Nuestro equipo revisa la documentación y las condiciones de su póliza. Le avisaremos por este mismo medio cuando haya novedades. No necesita hacer nada más por ahora.</p>`,
   pie:`<button class="cta sec" onclick="ir('estado')">Ver el estado de mi caso</button>
@@ -374,6 +378,7 @@ salir: () => ({ mini:'GUARDADO', tit:'Guardamos su avance', prog:68,
     <div class="exito" style="background:#E3F3EF;color:var(--verde-oscuro)">⏸</div>
     <p class="tx" style="text-align:center">Cuando vuelva, sigue exactamente en el mismo punto. Nada de lo que ya hizo se pierde.</p>
     <div class="caja"><b class="t">Le falta enviarnos</b>${faltantes().map(k=>NOMBRE_DOC[k]).join('<br>')||'Nada'}</div>
+    <p class="tx small">Aunque ya los haya enviado antes por correo, cárguelos aquí: es lo que deja su caso completo hoy.</p>
     <p class="tx small">Le recordaremos mañana y en tres días. Si para entonces no ha podido, un asesor lo llamará.</p>`,
   pie:`<button class="cta" onclick="ir('docs')">Continuar ahora</button>
        <button class="cta sec" onclick="ir('estado')">Ver el estado de mi caso</button>` }),
